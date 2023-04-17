@@ -7,16 +7,18 @@ trait Functions:
   def sum(a: List[Double]): Double
   def concat(a: Seq[String]): String
   def max(a: List[Int]): Int // gives Int.MinValue if a is empty
-  def combiner[A: Combiner](a: Seq[A]) : A
 
 object FunctionsImpl extends Functions:
-  override def sum(a: List[Double]): Double = a.foldLeft(0d)((c, d) => c + d)
 
-  override def concat(a: Seq[String]): String = a.foldLeft("")((c, d) => c ++ d)
+  import FunctionsCombiner.given
 
-  override def max(a: List[Int]): Int = a.foldLeft(Int.MinValue)((b, c) => if b >= c then b else c)
+  override def sum(a: List[Double]): Double = combiner(a)
 
-  override def combiner[A: Combiner](a: Seq[A]) : A =
+  override def concat(a: Seq[String]): String = combiner(a)
+
+  override def max(a: List[Int]): Int = combiner(a)
+
+  private def combiner[A: Combiner](a: Seq[A]) : A =
     a.foldLeft(summon[Combiner[A]].unit)((a, b) => summon[Combiner[A]].combine(a, b))
 
 /*
@@ -50,13 +52,12 @@ object FunctionsCombiner:
     override def unit: Int = Int.MinValue
     override def combine(a: Int, b: Int): Int = if a >= b then a else b
 
-import FunctionsCombiner.given
 
 @main def checkFunctions(): Unit =
   val f: Functions = FunctionsImpl
-  println(f.combiner(List(10.0, 20.0, 30.1))) // 60.1
-  println(f.combiner(List())) // 0.0
-  println(f.combiner(Seq("a", "b", "c"))) // abc
-  println(f.combiner(Seq())) // ""
-  println(f.combiner(List(-10, 3, -5, 0))) // 3
-  println(f.combiner(List())) // -2147483648
+  println(f.sum(List(10.0, 20.0, 30.1))) // 60.1
+  println(f.sum(List())) // 0.0
+  println(f.concat(Seq("a", "b", "c"))) // abc
+  println(f.concat(Seq())) // ""
+  println(f.max(List(-10, 3, -5, 0))) // 3
+  println(f.max(List())) // -2147483648
