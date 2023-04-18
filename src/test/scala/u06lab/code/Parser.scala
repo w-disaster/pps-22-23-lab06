@@ -2,6 +2,7 @@ package u06lab.code
 
 import org.junit.Test
 import org.junit.Assert.*
+import u06lab.solution.*
 
 class ParserTests:
   def parser = new BasicParser(Set('a', 'b', 'c'))
