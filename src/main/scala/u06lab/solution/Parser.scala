@@ -44,6 +44,20 @@ trait NotTwoConsecutive[T] extends Parser[T]:
 
 class NotTwoConsecutiveParser(chars: Set[Char]) extends BasicParser(chars) with NotTwoConsecutive[Char]
 
+/* Linearization:
+    class A
+    trait B extends (class) A
+    trait C extends (class) A
+    ...
+    class D extends (class) A with (trait) B with (trait) C
+*/
+class ParserNTCNE(chars: Set[Char]) extends BasicParser(chars) with NotTwoConsecutive[Char] with NonEmpty[Char]
+
+class ShorterThanNParser(n: Int) extends Parser[Seq[Char]]:
+
+  override def parse(t: Seq[Char]): Boolean = t.size <= n
+
+  override def end: Boolean = true
 
 object Parsers:
   extension (s: String)
@@ -70,10 +84,14 @@ object Parsers:
   println(parserNTC.parseAll("".toList)) // true
 
   // note we do not need a class name here, we use the structural type
-  def parserNTCNE = new BasicParser(Set('X', 'Y', 'Z')) with NotTwoConsecutive[Char] with NonEmpty[Char]
+  def parserNTCNE = new ParserNTCNE(Set('X', 'Y', 'Z'))
   println(parserNTCNE.parseAll("XYZ".toList)) // true
   println(parserNTCNE.parseAll("XYYZ".toList)) // false
   println(parserNTCNE.parseAll("".toList)) // false
+
+  def parserShorterN = new ShorterThanNParser(3)
+  println(parserShorterN.parse(Seq('X', 'Y', 'Z'))) // true
+  println(parserShorterN.parse(Seq('X', 'Y', 'Z', 'Z', 'Q'))) // false
 
   import Parsers.*
 
