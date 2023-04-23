@@ -2,6 +2,7 @@ package u06lab.code
 
 import org.junit.Test
 import org.junit.Assert.*
+import u06lab.solution.*
 
 class CombinerTests {
   @Test
