@@ -6,7 +6,7 @@ object Solitaire extends App:
     val rows =
       for y <- 0 until height
           row = for x <- 0 until width
-          number = reversed.indexOf((x, y)) + 1
+                    number = reversed.indexOf((x, y)) + 1
           yield if number > 0 then "%-2d ".format(number) else "X  "
       yield row.mkString
     rows.mkString("\n")
